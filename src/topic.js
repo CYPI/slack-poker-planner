@@ -40,7 +40,7 @@ async function remove(topic) {
 }
 
 
-function createFromPPCommand(ppCommand) {
+function createFromPPCommand(ppCommand, dbParticipants) {
     const id = shortid.generate();
 
     let mentions = [];
@@ -67,6 +67,13 @@ function createFromPPCommand(ppCommand) {
             });
         }
     });
+
+    if (!!dbParticipants) {
+      logger.info(`participants from DB ${Object.values(dbParticipants)}`);
+      utils.matchAll(Object.values(dbParticipants), /<@(.*?)>/g).forEach((str) => {
+          mentions.push({ type: 'user', id: str.split('|')[0] });
+      });
+    }
 
     // Remove duplicate mentions
     mentions = _.uniqBy(mentions, mention => `${mention.type}-${mention.id}`);
